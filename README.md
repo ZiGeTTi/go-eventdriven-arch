@@ -72,5 +72,17 @@ curl -X POST http://localhost:8080/api/v1/orders/create-order \
         "quantity": 1
     }
 }'
+
+## Healthcheck
+
+You can check the health of the application by sending a GET request to the following endpoint:
+
+`GET http://localhost:8080/api/healthCheck`
+
+### Curl Command
+
+```bash
+curl http://localhost:8080/api/healthCheck
+```
 ```
 
