@@ -1,0 +1,267 @@
+definitions:
+  inventory.Product:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      reserved:
+        type: integer
+    type: object
+  models.OrderRequest:
+    properties:
+      amount:
+        type: number
+      product:
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          quantity:
+            type: integer
+        type: object
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/inventory/products:
+    get:
+      description: Retrieves all products in inventory
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.Product'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all products
+      tags:
+      - inventory
+  /api/v1/inventory/products/{id}:
+    get:
+      description: Retrieves a specific product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/inventory.Product'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get product by ID
+      tags:
+      - inventory
+  /api/v1/inventory/products/{id}/quantity/{quantity}:
+    put:
+      description: Updates the available quantity of a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New quantity
+        in: path
+        name: quantity
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update product quantity
+      tags:
+      - inventory
+  /api/v1/inventory/products/{id}/release/{quantity}:
+    post:
+      description: Releases reserved quantity back to available stock
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Quantity to release
+        in: path
+        name: quantity
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Release reserved product quantity
+      tags:
+      - inventory
+  /api/v1/inventory/products/{id}/reserve/{quantity}:
+    post:
+      description: Reserves a quantity of a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Quantity to reserve
+        in: path
+        name: quantity
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reserve product quantity
+      tags:
+      - inventory
+  /api/v1/inventory/products/low-stock/{threshold}:
+    get:
+      description: Retrieves products with stock below threshold
+      parameters:
+      - description: Stock threshold
+        in: path
+        name: threshold
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/inventory.Product'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get low stock products
+      tags:
+      - inventory
+  /api/v1/orders/create-order:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new order and returns the status
+      parameters:
+      - description: Order payload
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new order
+      tags:
+      - orders
+  /api/v1/orders/replay-failed-events:
+    post:
+      description: Replays failed order events that have not been successfully published
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Replay failed order events
+      tags:
+      - orders
+swagger: "2.0"
