@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+README.md
+
+# Documentation
+*.md
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Test files
+*_test.go
+test/
+
+# Docker files (not needed in image)
+Dockerfile*
+docker-compose*.yml
+docker/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env*
+
+# Temporary files
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+main
+*.exe
+
+# Coverage files
+coverage.txt
+coverage.html
