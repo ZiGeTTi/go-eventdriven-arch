@@ -67,6 +67,37 @@ This document provides comprehensive instructions for running the Go Order EDA a
 - **mongodb**: MongoDB database (Port: 27017)
 - **rabbitmq**: RabbitMQ message broker (Port: 5672, Management: 15672)
 
+## 🧠 Application Logic Flow
+
+The application follows an event-driven pattern. Here is the sequential logic for a typical order creation process:
+
+1.  **Create Order**: A user sends a `POST` request to `/api/v1/orders/create-order`.
+2.  **Order Requested**: The `OrderService` creates an `OrderRequestedEvent` and publishes it to the `order_events` exchange in RabbitMQ.
+3.  **Inventory Check**: The `InventoryService` consumes the `OrderRequestedEvent`, checks for product availability, and reserves the requested quantity.
+4.  **Inventory Status Update**: Based on the stock check, the `InventoryService` publishes an `InventoryStatusUpdatedEvent` indicating whether the product is available.
+5.  **Notification**: The `NotificationService` consumes the `InventoryStatusUpdatedEvent` and sends a confirmation or cancellation notification to the user.
+6.  **Order Status Update**: The `OrderService` also listens for the `InventoryStatusUpdatedEvent` to update the order status to `Confirmed` or `Cancelled`.
+
+## Endpoints
+
+### Order Service
+
+| Method | Path                                      | Description                                |
+|--------|-------------------------------------------|--------------------------------------------|
+| POST   | `/api/v1/orders/create-order`             | Creates a new order.                       |
+| POST   | `/api/v1/orders/replay-failed-events`     | Replays failed order events from the DLQ.  |
+
+### Inventory Service
+
+| Method | Path                                      | Description                                |
+|--------|-------------------------------------------|--------------------------------------------|
+| GET    | `/api/v1/inventory/products`              | Retrieves all products.                    |
+| GET    | `/api/v1/inventory/products/:id`          | Retrieves a product by its ID.             |
+| GET    | `/api/v1/inventory/products/low-stock/:threshold` | Retrieves products below a stock threshold.|
+| POST   | `/api/v1/inventory/products/:id/reserve/:quantity` | Reserves a quantity of a product.        |
+| POST   | `/api/v1/inventory/products/:id/release/:quantity` | Releases a reserved quantity of a product. |
+| PUT    | `/api/v1/inventory/products/:id/quantity/:quantity` | Updates the quantity of a product.       |
+
 ### Optional Services (Production)
 - **nginx**: Reverse proxy (Port: 80, 443)
 - **redis**: Caching layer (Port: 6379)
